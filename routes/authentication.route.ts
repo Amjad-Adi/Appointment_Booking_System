@@ -6,11 +6,11 @@ import {handleGetUser,handleCreateUser,handleUpdateUser,handleUpdateUserByAdmin,
 import {authorize} from "../authoraization/autoraization";
 import {CREATE_USER_PERMISSION, GET_USERS_PERMISSION} from "../permissions/permissions";
 import {authenticateUser} from "../authentication/firebase.authentication";
-export let userRouter=express.Router()
-userRouter.route("/")
+export let authenticationRouter=express.Router()
+authenticationRouter.route("/lgoin")
     .get(authenticateUser,authorize(GET_USERS_PERMISSION),handleGetUsers)
     .post(authenticateUser,authorize(CREATE_USER_PERMISSION),validate(createUserSchema),handleCreateUser)
 
-userRouter.route("/:uuid")
+authenticationRouter.route("/:uuid")
     .get(handleGetUser)
     .patch(validate(updateUserSchema),handleUpdateUser)
