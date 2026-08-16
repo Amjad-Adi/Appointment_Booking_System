@@ -1,20 +1,23 @@
-import {PublicServiceResponse, Service, UpdateService,CreateService} from "../models/service.model"
+import {RoomResponse, Room, UpdateRoom,CreateRoom} from "../models/room.model"
 import {pool} from "../databases/postgre-connection"
 import {
-    COLUMN_UUID,
-    COLUMN_NAME,
-    COLUMN_ORGANIZATION_ID,
-    COLUMN_DESCRIPTION,
-    COLUMN_PRICE,
-    COLUMN_DURATION_IN_MINUTES,
-    COLUMN_CREATED_AT_UTC,
-    COLUMN_UPDATED_AT_UTC,
-    COLUMN_STATUS,
     TABLE_NAME,
+    COLUMN_ID,
+    COLUMN_UUID,
+    COLUMN_TITLE,
+    COLUMN_BODY,
+    COLUMN_CREATED_AT_UTC,
+    COLUMN_EXPIRES_AT_UTC,
+    COLUMN_SENDER_ID,
+    COLUMN_RECIPIENT_ID,
+    COLUMN_INVITATION_STATUS,
     ALIAS,
-    COLUMN_PICTURE_PATH, ALIAS_COLUMN_DURATION_IN_MINUTES, ALIAS_COLUMN_PICTURE_PATH, ALIAS_COLUMN_CREATED_AT_UTC,
-    ALIAS_COLUMN_UPDATED_AT_UTC
-} from "../databases/contracts/service.contract"
+    ALIAS_COLUMN_CREATED_AT_UTC,
+    ALIAS_COLUMN_DELIVERY_STATUS,
+    ALIAS_COLUMN_EXPIRES_AT_UTC,
+    ALIAS_COLUMN_RECIPIENT_ID,
+    ALIAS_COLUMN_SENDER_ID,
+} from "../databases/contracts/invitation.contract"
 import {
     TABLE_NAME as ORGANIZATION_TABLE_NAME,
     ALIAS as ORGANIZATION_ALIAS,
@@ -25,7 +28,20 @@ import {
     ALIAS_COLUMN_PROFILE_PICTURE_PATH as ORGANIZATION_ALIAS_COLUMN_PROFILE_PICTURE_PATH,
     COLUMN_UUID as ORGANIZATION_COLUMN_UUID, COLUMN_PROFILE_PICTURE_PATH, ALIAS_COLUMN_ORGANIZATION_UUID,
 } from "../databases/contracts/organization.contract"
+import {
+
+} from "../databases/contracts/user.contract"
 import {QueryResult} from "pg";
+import {SentInvitationResponse} from "../models/invitation.model";
+import {CreateService, Service, PublicServiceResponse, UpdateService} from "../models/service.model";
+import {
+    ALIAS_COLUMN_DURATION_IN_MINUTES,
+    ALIAS_COLUMN_PICTURE_PATH, ALIAS_COLUMN_UPDATED_AT_UTC,
+    COLUMN_DESCRIPTION,
+    COLUMN_DURATION_IN_MINUTES,
+    COLUMN_NAME, COLUMN_ORGANIZATION_ID, COLUMN_PICTURE_PATH,
+    COLUMN_PRICE, COLUMN_STATUS, COLUMN_UPDATED_AT_UTC
+} from "../databases/contracts/service.contract";
 export async function findAll(organizationUuid:string):Promise<PublicServiceResponse[]>{
     return (await pool.query(
         `SELECT ${ALIAS}.${COLUMN_UUID},${ALIAS}.${COLUMN_NAME},${ALIAS}.${COLUMN_DESCRIPTION},${ALIAS}.${COLUMN_PRICE},${ALIAS}.${COLUMN_DURATION_IN_MINUTES},${ORGANIZATION_ALIAS}.${ORGANIZATION_COLUMN_UUID} AS ${ORGANIZATION_ALIAS_COLUMN_UUID},${ORGANIZATION_ALIAS}.${ORGANIZATION_COLUMN_NAME} as ${ORGANIZATION_ALIAS_COLUMN_NAME}, ${ORGANIZATION_ALIAS}.${COLUMN_PROFILE_PICTURE_PATH} AS ${ORGANIZATION_ALIAS_COLUMN_PROFILE_PICTURE_PATH},${ALIAS}.${COLUMN_PICTURE_PATH} AS ${ALIAS_COLUMN_PICTURE_PATH} ,${ALIAS}.${COLUMN_CREATED_AT_UTC} AS ${ALIAS_COLUMN_CREATED_AT_UTC},${ALIAS}.${COLUMN_UPDATED_AT_UTC} AS ${ALIAS_COLUMN_UPDATED_AT_UTC}, ${ALIAS}.${COLUMN_STATUS}
@@ -58,7 +74,7 @@ export async function create(service: CreateService):Promise<Service> {
         `INSERT INTO ${TABLE_NAME}(${COLUMN_NAME},${COLUMN_DESCRIPTION},${COLUMN_PRICE},${COLUMN_DURATION_IN_MINUTES},${COLUMN_PICTURE_PATH},${COLUMN_ORGANIZATION_ID})
                     VALUES ($1,$2,$3,$4,$5,$6)
                     RETURNING ${COLUMN_UUID},${COLUMN_NAME},${COLUMN_DESCRIPTION},${COLUMN_PRICE},${COLUMN_DURATION_IN_MINUTES} AS ${ALIAS_COLUMN_DURATION_IN_MINUTES},${COLUMN_PICTURE_PATH} AS ${ALIAS_COLUMN_PICTURE_PATH},${COLUMN_CREATED_AT_UTC} AS ${ALIAS_COLUMN_CREATED_AT_UTC},${COLUMN_UPDATED_AT_UTC} AS ${ALIAS_COLUMN_UPDATED_AT_UTC},${COLUMN_STATUS}`,
-                    [service.name, service.description,service.price,service.durationInMinutes,service.profilePicturePath,service.organizationId])).rows[0];
+        [service.name, service.description,service.price,service.durationInMinutes,service.profilePicturePath,service.organizationId])).rows[0];
 }
 
 export async function update(service: UpdateService):Promise<Service> {
